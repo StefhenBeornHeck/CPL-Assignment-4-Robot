@@ -11,14 +11,16 @@ MeUltrasonicSensor ultrasonic_3(3);
 MeDCMotor motor_9(9);
 MeDCMotor motor_10(10);
 
-
-double //Measures relative time
+// Measures relative time
+double
 getLastTime()
 {
-  return currentTime = millis() / 1000.0 - lastTime;
+  currentTime = millis() / 1000.0 - lastTime;
+  return currentTime;
 }
- 
-void //Defines int values for movement
+
+// Defines int values for movement
+void 
 move(int direction, int speed)
 {
   int leftSpeed = 0;
@@ -26,38 +28,39 @@ move(int direction, int speed)
   switch(direction)
   {
     case 1:
-    leftSpeed = speed;
-    rightSpeed = speed;
-    break;
+      leftSpeed = speed;
+      rightSpeed = speed;
+      break;
 
     case 2:
-    leftSpeed = -speed;
-    rightSpeed = -speed;
-    break;
+      leftSpeed = -speed;
+      rightSpeed = -speed;
+      break;
 
     case 3:
-    leftSpeed = -speed;
-    rightSpeed = speed;
-    break;
+      leftSpeed = -speed;
+      rightSpeed = speed;
+      break;
 
     case 4:
-    leftSpeed = speed;
-    rightSpeed = -speed;
-    break;
+      leftSpeed = speed;
+      rightSpeed = -speed;
   }
-
- motor_9.run((9) == M1 ? -(leftSpeed) : (leftSpeed));
-  motor_10.run((10) == M1 ? -(rightSpeed) : (rightSpeed));
+  motor_9.run((9 == M1) ? -leftSpeed : leftSpeed);
+  motor_10.run((10 == M1) ? -rightSpeed : rightSpeed);
 }
 
-void //Makes the robot do absolutely nothing for x seconds
+// Makes the robot do absolutely nothing for x seconds
+void 
 _delay(float seconds)
 {
   long endTime = millis() + seconds * 1000;
-  while(millis() < endTime) _loop();
+  while (millis() < endTime) _loop();
 }
 
-void //THE program
+// The main program
+// Tactic, ride as right as possible, if there is an object, turn left.
+void 
 setup()
 {
   pinMode(A7, INPUT);
@@ -70,38 +73,28 @@ setup()
   lastTime = millis() / 1000.0;
   while(1)
   {
-      ledMtx_1.drawStr(0, 0 + 7, String(getLastTime()).c_str());
-      /*
-       If there is no object within 20 cm
-       or the robot has been circling for less than 9 seconds…
-      */
-      if((!((ultrasonic_3.distanceCm() < 20)))  &&  (getLastTime() < 9))
-      {
-          //… the robot drives with a slight curve towards the right
-          motor_9.run(-1 * 100/100.0*255);
-          motor_10.run(60/100.0*255);
-
-      }
-      else
-      {
-          //… else, the robot rotates towards the left.
-          move(2, 50 / 100.0 * 255);
-          _delay(0.5);
-          move(2, 0);
+    ledMtx_1.drawStr(0, 0 + 7, String(getLastTime()).c_str());
+    // Drive robot with slight curve to the right if there is no object within 
+    // 20 cm or the robot has been circling for less than 9 seconds
+    if (ultrasonic_3.distanceCm() >= 20 && getLastTime() < 9)
+    {
+      motor_9.run(-255);
+      motor_10.run(153);
+    }
+    else
+    {
+      // Else, the robot rotates towards the left
+      move(2, 127.5);
+      _delay(0.5);
+      move(2, 0);
           
-          move(3, 50 / 100.0 * 255);
-          _delay(0.5);
-          move(3, 0);
-          lastTime = millis() / 1000.0;
-
-      }
-
-      _loop();
+      move(3, 127.5);
+      _delay(0.5);
+      move(3, 0);
+      lastTime = millis() / 1000.0;
+    }
+    _loop();
   }
-/*
- In short, the "tactic" is to hug the rightmost barrier
- without making circles for an eternity.
- */
  }
 
 void
