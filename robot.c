@@ -66,8 +66,7 @@ setup()
   pinMode(A7, INPUT);
   ledMtx_1.setColorIndex(1);
   ledMtx_1.setBrightness(6);
-  int readA7 = (analogRead(A7) > 10) ? 0 : 1;
-  while (!(0 ^ readA7))
+  while(!((0 ^ (analogRead(A7) > 10 ? 0 : 1))))
   {
     _loop();
   }
